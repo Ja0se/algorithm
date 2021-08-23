@@ -7,32 +7,32 @@ using namespace std;
 int m, n, k;
 vector<ll> v;
 vector<ll> tree;
-//¼¼±×¸ÕÆ® Æ®¸® »ı¼º
+//ì„¸ê·¸ë¨¼íŠ¸ íŠ¸ë¦¬ ìƒì„±
 ll init(int node, int start, int end) {
-	// arr: ÃÊ±â ¹è¿­ 
-	// tree: ¼¼±×¸ÕÆ® Æ®¸® 
-	// node: ¼¼±×¸ÕÆ® Æ®¸® ³ëµå ¹øÈ£ 
-	// node°¡ ´ã´çÇÏ´Â ÇÕÀÇ ¹üÀ§°¡ start ~ end
+	// arr: ì´ˆê¸° ë°°ì—´ 
+	// tree: ì„¸ê·¸ë¨¼íŠ¸ íŠ¸ë¦¬ 
+	// node: ì„¸ê·¸ë¨¼íŠ¸ íŠ¸ë¦¬ ë…¸ë“œ ë²ˆí˜¸ 
+	// nodeê°€ ë‹´ë‹¹í•˜ëŠ” í•©ì˜ ë²”ìœ„ê°€ start ~ end
 
-	if (start == end)	return tree[node] = v[start];//³ëµå°¡ ¸®ÇÁ ³ëµåÀÎ °æ¿ì ¹è¿­ÀÇ ±× ¿ø¼Ò¸¦ °¡Á®¾ß ÇÑ´Ù.
+	if (start == end)	return tree[node] = v[start];//ë…¸ë“œê°€ ë¦¬í”„ ë…¸ë“œì¸ ê²½ìš° ë°°ì—´ì˜ ê·¸ ì›ì†Œë¥¼ ê°€ì ¸ì•¼ í•œë‹¤.
 
 	int mid = (start + end) / 2;
-	//±¸°£ÇÕ ±¸ÇÏ±â
+	//êµ¬ê°„í•© êµ¬í•˜ê¸°
 	return tree[node] = init(node * 2, start, mid) + init(node * 2 + 1, mid + 1, end);
 }
 
 ll sum(int node, int start, int end, int left, int right) {
-	if (left > end || right < start)	return 0;//°ãÄ¡Áö ¾ÊÀ¸¸é Å½»öÇÒ ÇÊ¿ä°¡ ¾øÀ½
-	if (left <= start && end <= right)	return tree[node];//Å½»öÇÏ´Â ±¸°£ÀÌ ÀüÃ¼ ±¸°£À» ¸ğµÎ Æ÷ÇÔÇÒ °æ¿ì
+	if (left > end || right < start)	return 0;//ê²¹ì¹˜ì§€ ì•Šìœ¼ë©´ íƒìƒ‰í•  í•„ìš”ê°€ ì—†ìŒ
+	if (left <= start && end <= right)	return tree[node];//íƒìƒ‰í•˜ëŠ” êµ¬ê°„ì´ ì „ì²´ êµ¬ê°„ì„ ëª¨ë‘ í¬í•¨í•  ê²½ìš°
 	int mid = (start + end) / 2;
-	return sum(node * 2, start, mid, left, right) + sum(node * 2 + 1, mid + 1, end, left, right);//¿ŞÂÊ ±¸°£+¿À¸¥ÂÊ ±¸°£
+	return sum(node * 2, start, mid, left, right) + sum(node * 2 + 1, mid + 1, end, left, right);//ì™¼ìª½ êµ¬ê°„+ì˜¤ë¥¸ìª½ êµ¬ê°„
 }
 
 void update(int node, int start, int end, int index, ll diff) {
-	if (index<start || index>end)	return;// index°¡ ±¸°£¾È¿¡ ¾ø´Â °æ¿ì
+	if (index<start || index>end)	return;// indexê°€ êµ¬ê°„ì•ˆì— ì—†ëŠ” ê²½ìš°
 	tree[node] = tree[node] + diff;
-	//¸®ÇÁ³ëµå°¡ ¾Æ´Ñ °æ¿ì ÀÚ½Äµµ º¯°æÇØÁà¾ß ÇÏ±â ¶§¹®¿¡
-	//¸®ÇÁ ³ëµåÀÎÁö °Ë»ç ÈÄ ¾Æ·¡ ÀÚ½Ä ³ëµå¸¦ °»½ÅÇØÁØ´Ù.
+	//ë¦¬í”„ë…¸ë“œê°€ ì•„ë‹Œ ê²½ìš° ìì‹ë„ ë³€ê²½í•´ì¤˜ì•¼ í•˜ê¸° ë•Œë¬¸ì—
+	//ë¦¬í”„ ë…¸ë“œì¸ì§€ ê²€ì‚¬ í›„ ì•„ë˜ ìì‹ ë…¸ë“œë¥¼ ê°±ì‹ í•´ì¤€ë‹¤.
 	if (start != end) {
 		int mid = (start + end) / 2;
 		update(node * 2, start, mid, index, diff);
@@ -49,8 +49,8 @@ int main(void) {
 		cin >> a;
 		v.push_back(a);
 	}
-	int height = (int)ceil(log2(n));//¼¼±×¸ÕÆ® Æ®¸®ÀÇ ³ôÀÌ
-	int tree_size = (1 << (height + 1));//¼¼±×¸ÕÆ® Æ®¸®ÀÇ Å©±â
+	int height = (int)ceil(log2(n));//ì„¸ê·¸ë¨¼íŠ¸ íŠ¸ë¦¬ì˜ ë†’ì´
+	int tree_size = (1 << (height + 1));//ì„¸ê·¸ë¨¼íŠ¸ íŠ¸ë¦¬ì˜ í¬ê¸°
 	tree.resize(tree_size);
 	init(1, 0, n - 1);
 
@@ -59,7 +59,7 @@ int main(void) {
 		cin >> a >> b >> c;
 		if (a == 1) {//update
 			c -= v[b - 1];
-			v[b - 1] += c;//diff´Â Â÷ÀÌ¸¸ ´õÇØÁØ´Ù.
+			v[b - 1] += c;//diffëŠ” ì°¨ì´ë§Œ ë”í•´ì¤€ë‹¤.
 			update(1, 0, n - 1, b - 1, c);
 		}
 		else {//print sum
