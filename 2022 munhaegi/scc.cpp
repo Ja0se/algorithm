@@ -1,0 +1,53 @@
+#pragma warning(disable:4996)
+#include<iostream>
+#include<algorithm>
+#include<vector>
+
+#define ll long long
+using namespace std;
+vector<int> v[10001];
+bool finished[10001];
+vector<int> s;
+int n, m, dfsn[10001];
+int level;
+int ans;
+int dfs(int x) {
+	dfsn[x] = ++level;
+	s.push_back(x);
+	int parent = dfsn[x];
+	for (int i = 0; i < v[x].size();i++) {
+		int p = v[x][i];
+		if (dfsn[p] == 0)parent = min(parent, dfs(p));
+		else if (!finished[p])parent = min(parent, dfsn[p]);
+	}
+	if (parent == dfsn[x]) {
+		while (1) {
+			int top = s.back();
+			s.pop_back();
+			finished[top] = 1;
+			if (top == x)break;
+		}
+		ans++;
+	}
+	return parent;
+}
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	freopen("scc.inp", "r", stdin);
+	freopen("scc.out", "w", stdout);
+	cin >> n >> m;
+	for (int i = 0; i < m; i++) {
+		int a, b;
+		cin >> a >> b;
+		v[a].push_back(b);
+	}
+	int a;
+	for (int i = 0; i < n; i++) {
+		if (dfsn[i] == 0) {
+			level = 0;
+ 			a=dfs(i);
+		}
+	}
+	cout << ans;
+	return 0;
+}
