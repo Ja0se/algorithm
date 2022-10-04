@@ -1,0 +1,37 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<queue>
+#define ll long long
+#define INF 1234567890
+using namespace std;
+struct pa {
+	int x, cost;
+};
+int n, m;
+vector<struct pa> v[501];
+ll arr[501];
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	cin >> n >> m;
+	for (int i = 0; i < m; i++) {
+		int a, b, c;
+		cin >> a >> b >> c;
+		v[a].push_back({ b,c });
+	}
+	bool flag = false;
+	for (int i = 2; i <= n; i++)arr[i] = INF;
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			for (auto& p : v[j]) {
+				if (arr[j] != INF && arr[p.x] > arr[j] + p.cost) {
+					arr[p.x] = arr[j] + p.cost;
+					if (i == n)flag = true;
+				}
+			}
+		}
+	}
+	if (flag) { cout << -1; return 0; }
+	for (int i = 2; i <= n; i++)arr[i] == INF ? cout << -1 << "\n" : cout << arr[i] << "\n";
+	return 0;
+}

@@ -1,0 +1,54 @@
+#pragma warning(disable:4996)
+#include<iostream>
+#include<vector>
+#include<stack>
+#include<algorithm>
+using namespace std;
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	freopen("1.inp", "r", stdin);	freopen("1.out", "w", stdout);
+	int T;
+	cin >> T;
+	while (T--) {
+		int n;
+		cin >> n;
+		vector<int> v(n);
+		for (int i = 0; i < n; i++) {
+			cin >> v[i];
+		}
+		int Max = 0;
+		stack<int> s;
+		bool flag = 0;
+		s.push(v[0]);
+		for (int i = 1; i < n; i++) {
+			if (s.empty()) {
+				s.push(v[i]);
+				continue;
+			}
+			if (v[i] > s.top()) {
+				if (s.top() == Max + 1) {
+					while (!s.empty()) {
+						if (s.top() == Max + 1) {
+							s.pop();
+							Max++;
+						}
+						else {
+							break;
+						}
+					}
+				}
+
+				else {
+					flag = 1;
+					cout << "No\n";
+					break;
+				}
+			}
+			s.push(v[i]);
+
+		}
+		if (flag) continue;
+		cout << "Yes\n";
+	}
+	return 0;
+}

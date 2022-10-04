@@ -1,0 +1,258 @@
+#pragma warning(disable:4996)
+#include<iostream>
+#include<string>
+#include<algorithm>
+#define Max 101
+using namespace std;
+struct bignum {
+    string str;
+    char arr[Max];
+    int signbit;
+    int lastbit;
+};
+void Init(struct bignum* c);
+void Zero(struct bignum* c);
+void Minus(struct bignum* a, struct bignum* b, struct bignum* c);
+void Plus(struct bignum* a, struct bignum* b, struct bignum* c);
+void mul(struct bignum* a, struct bignum* b, struct bignum* c);
+void div(struct bignum* a, struct bignum* b, struct bignum* c);
+void Mod(struct bignum* a, struct bignum* b, struct bignum* c);
+int Compare(struct bignum* a, struct bignum* b);
+void Shift(struct bignum* n, int d);
+int main(void) {
+    ios::sync_with_stdio(false);   cin.tie(NULL);   cout.tie(NULL);
+    freopen("1.inp", "r", stdin);    freopen("1.out", "w", stdout);
+    while (1) {
+        struct bignum a, b, c;
+        char oper;
+        cin >> a.str >> oper >> b.str;
+        a.signbit = b.signbit = 1;
+
+        a.lastbit = a.str.length() - 1;
+        b.lastbit = b.str.length() - 1;
+        if (a.lastbit == 0 && b.lastbit == 0 && a.str[0] == '0' && b.str[0] == '0')break;
+        if (a.str[0] == '-') {
+            a.str.erase(a.str.begin());
+            a.signbit = -1;
+        }
+        if (b.str[0] == '-') {
+            b.str.erase(b.str.begin());
+            b.signbit = -1;
+        }
+        reverse(a.str.begin(), a.str.end());
+        reverse(b.str.begin(), b.str.end());
+        while (a.str.back() == '0') {
+            a.str.pop_back();
+        }
+        while (b.str.back() == '0')b.str.pop_back();
+        a.lastbit = a.str.length() - 1;
+        b.lastbit = b.str.length() - 1;
+
+        strcpy(a.arr, a.str.c_str());
+        strcpy(b.arr, b.str.c_str());
+        for (int i = a.lastbit+1; i < Max; i++)a.arr[i] = '0';
+        for (int i = b.lastbit+1; i < Max; i++)b.arr[i] = '0';
+        switch (oper) {
+        case '-':
+            Minus(&a,&b,&c);
+            break;
+        case '+':
+            Plus(&a,&b,&c);
+            break;
+        case '*':
+            mul(&a,&b,&c);
+            break;
+        case '/':
+            div(&a,&b,&c);
+            break;
+        case '%':
+            Mod(&a,&b,&c);
+            break;
+        }
+        c.arr[c.lastbit + 1] = '\0';
+        c.str = c.arr;
+        reverse(c.str.begin(), c.str.end());
+        if (c.signbit == -1)cout << "-";
+        cout << c.str << "\n";
+    }
+    return 0;
+}
+void Init(struct bignum* c) {
+    for (int i = 0; i < Max; i++)c->arr[i] = '0';
+    c->lastbit = 0;
+    c->signbit = 1;
+}
+void Zero(struct bignum* c) {
+    while ((c->lastbit > 0) && (c->arr[c->lastbit] == '0'))c->lastbit--;
+    if ((c->lastbit == 0) && (c->arr[0] == '0'))c->signbit = 1;
+}
+void Minus(struct bignum *a, struct bignum* b, struct bignum* c) {
+    Init(c);
+    if (a->signbit == -1 || b->signbit == -1) {
+        b->signbit = -1 * b->signbit;
+        Plus(a, b, c);
+        b->signbit = -1 * b->signbit;
+        return;
+    }
+    if (Compare(a, b) == 1) {
+        Minus(b, a, c);
+        c->signbit = -1;
+        return;
+    }
+    c->lastbit = max(a->lastbit, b->lastbit);
+    int borrow = 0;
+    int v;
+    for (int i = 0; i <= c->lastbit; i++) {
+        int A = a->arr[i] - '0';
+        int B = b->arr[i] - '0';
+        v = A - borrow - B;
+        if (A > 0)borrow = 0;
+        if (v < 0) {
+            v += 10;
+            borrow = 1;
+        }
+        c->arr[i] = (v % 10) + '0';
+    }
+    Zero(c);
+}
+void Plus(struct bignum* a, struct bignum* b, struct bignum* c) {
+    Init(c);
+    if (a->signbit == b->signbit)c->signbit = a->signbit;
+    else {
+        if (a->signbit == -1) {
+            a->signbit = 1;
+            Minus(b, a, c);
+            a->signbit = -1;
+        }
+        else {
+            b->signbit = 1;
+            Minus(a, b, c);
+            b->signbit = -1;
+        }
+        return;
+    }
+    int carry = 0;
+    c->lastbit = max(a->lastbit, b->lastbit) + 1;
+    for (int i = 0; i <= c->lastbit; i++) {
+        int A = a->arr[i] - '0';
+        int B = b->arr[i] - '0';
+        int cal = carry + A + B;
+        c->arr[i] = (cal % 10) + '0';
+        carry = cal / 10;
+    }
+    Zero(c);
+}
+void mul(struct bignum* a, struct bignum* b, struct bignum* c) {
+    struct bignum row, tmp;
+    Init(c);
+    row = *a;
+    for (int i = 0; i <= b->lastbit; i++) {
+        for (int j = 1; j <= (b->arr[i] - '0'); j++) {
+            Plus(c, &row, &tmp);
+            *c = tmp;
+        }
+        Shift(&row, 1);
+    }
+    c->signbit = a->signbit * b->signbit;
+    Zero(c);
+}
+void div(struct bignum* a, struct bignum* b, struct bignum* c) {
+    struct bignum row, tmp;
+    int asign, bsign;
+    Init(c);
+    c->signbit = a->signbit * b->signbit;
+
+    asign = a->signbit;
+    bsign = b->signbit;
+    a->signbit = b->signbit = 1;
+    Init(&row);
+    Init(&tmp);
+    c->lastbit = a->lastbit;
+    for (int i = a->lastbit; i >= 0; i--) {
+        Shift(&row, 1);
+        row.arr[0] = a->arr[i];
+        c->arr[i] = '0';
+        while (Compare(&row, b) != 1) {
+            c->arr[i]++;
+            Minus(&row, b, &tmp);
+            row = tmp;
+        }
+    }
+    Zero(c);
+    a->signbit = asign;
+    b->signbit = bsign;
+    //row mod
+    if (c->signbit == -1) {
+        bool flag = false;
+        for (int i = 0; i <= c->lastbit; i++) {
+            if (row.arr[i] != '0') {
+                flag = true;
+                break;
+            }
+        }
+        if (flag) {
+            row = *c;
+            struct bignum p;
+            Init(&p);
+            p.arr[0] = '1';
+            p.str = "1";
+            p.signbit = -1;
+            Plus(&row, &p, c);
+        }
+    }
+}
+void Mod(struct bignum* a, struct bignum* b, struct bignum* c) {
+    struct bignum row, tmp;
+    int asign, bsign;
+    Init(c);
+    //c->signbit = a->signbit * b->signbit;
+
+    asign = a->signbit;
+    bsign = b->signbit;
+    a->signbit = b->signbit = 1;
+    Init(&row);
+    Init(&tmp);
+    c->lastbit = a->lastbit;
+    for (int i = a->lastbit; i >= 0; i--) {
+        Shift(&row, 1);
+        row.arr[0] = a->arr[i];
+        c->arr[i] = '0';
+        while (Compare(&row, b) != 1) {
+            c->arr[i]++;
+            Minus(&row, b, &tmp);
+            row = tmp;
+        }
+    }
+    strcpy(c->arr, row.arr);
+    Zero(c);
+    if (c->lastbit == 0 && c->arr[0] == '0')return;
+    if (asign != bsign) {
+        Init(&tmp);
+        tmp = *b;
+        tmp.signbit = 1;
+        Minus(&tmp, &row, c);
+    }
+    a->signbit = asign;
+    b->signbit = bsign;
+}
+int Compare(struct bignum* a, struct bignum* b) {
+    if (a->signbit == -1 && b->signbit == 1) return 1;
+    if (a->signbit == 1 && b->signbit == -1)return -1;
+    if (b->lastbit > a->lastbit) return a->signbit;
+    if (a->lastbit > b->lastbit)return -1 * a->signbit;
+    for (int i = a->lastbit; i >= 0; i--) {
+        if (a->arr[i] > b->arr[i])return -1 * a->signbit;
+        if (b->arr[i] > a->arr[i])return a->signbit;
+    }
+    return 0;
+}
+void Shift(struct bignum* n, int d) {
+    if (n->lastbit == 0 && n->arr[0] == '0')return;
+    for (int i = n->lastbit; i >= 0; i--)n->arr[i + d] = n->arr[i];
+    for (int i = 0; i < d; i++)n->arr[i] = '0';
+    n->lastbit = n->lastbit + d;
+}
+
+/*
+진수 변환만 넣으면 끝
+*/

@@ -1,0 +1,91 @@
+#pragma warning(disable:4996)
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#define ll long long
+using namespace std;
+
+struct pa {
+	int x, y;
+	int p, q;
+	bool diff;
+	int idx;
+	bool operator <(const struct pa& b) const {    //시작 극단과 시계방향에 맞게 고칠것
+		if (1LL * q * b.p != 1LL * p * b.q) return 1LL * q * b.p < 1LL * p * b.q;
+		if(x==b.x)return y<b.y;
+		if(y==b.y)return x<b.x;
+		return x == b.x ? y < b.y : x < b.x;
+	}
+};
+
+ll ccw2(struct pa a, struct pa b) {
+	return 1LL * a.x * b.y - 1LL * a.y * b.x;
+}
+ll ccw(struct pa a, struct pa b, struct pa c) {
+	//ll A=ccw2({ b.x - a.x,b.y - a.y ,0,0,0,0}, { c.x - a.x,c.y - a.y ,0,0,0,0});
+	//if (A == 0)return 0;
+	//else if (A > 0)return 1;
+	//return -1;
+	//return A;
+	return 1LL * a.x * b.y + 1LL * b.x * c.y + 1LL * c.x * a.y - 1LL * a.y * b.x - 1LL * b.y * c.x - 1LL * c.y * a.x;
+}
+bool between(struct pa a, struct pa b, struct pa c) {
+	if (ccw(a, b, c) != 0)return false;
+	if (a.x != b.x)return(a.x <= c.x && c.x <= b.x) || (b.x <= c.x && c.x <= a.x);
+	return (a.y <= c.y && c.y <= b.y) || (b.y <= c.y && c.y <= a.y);
+}
+double area(vector<struct pa>& p) {
+	double ret = 0;
+	for (int i = 0; i < p.size(); i++) {
+		int j = (i + 1) % p.size();
+		ret += (p[i].x * p[j].y - p[i].y * p[j].x);
+	}
+
+	return ret;
+}
+
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	freopen("tangent.inp", "r", stdin); freopen("tangent.out", "w", stdout);
+	int T;
+	cin >> T;
+	for (int t = 0; t < T; t++) {
+		int n;
+		cin >> n;
+
+		for (int i = 0; i < n; i++) {
+			int a, b;
+			cin >> a >> b;
+			v1.push_back({ a,b ,0,0,false,i });
+			v.push_back(v1[i]);
+			if (v[0].x > v[i].x) swap(v, 0, i);
+			else if (v[0].x == v[i].x && v[0].y > v[i].y)swap(v, 0, i);
+		}
+		int m;
+		cin >> m;
+		for (int i = 0; i < m; i++) {
+			int a, b;
+			cin >> a >> b;
+			v2.push_back({ a,b ,0,0,true,i });
+			v.push_back(v2[i]);
+			if (v[0].x > v[i + n].x) swap(v, 0, i + n);
+			else if (v[0].x == v[i + n].x && v[0].y > v[i + n].y)swap(v, 0, i + n);
+		}
+
+		for (int i = 1; i < n + m; i++) {
+			v[i].p = v[i].x - v[0].x;
+			v[i].q = v[i].y - v[0].y;
+		}
+		sort(v.begin() + 1, v.end());
+		vector<struct pa> convex;
+		for (int i = 0; i < n + m; i++) {
+			while (convex.size() > 1 && ccw(convex[convex.size() - 2], convex.back(), v[i]) <= 0) {
+				convex.pop_back();
+			}
+			convex.push_back(v[i]);
+		}
+		//convex완성
+	}
+
+	return 0;
+}

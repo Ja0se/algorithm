@@ -1,0 +1,54 @@
+#pragma warning(disable:4996)
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<cmath>
+#define mod 1000000007
+#define ll long long
+using namespace std;
+int n, m, k;
+int Size;
+vector<int> v;
+//ll tree[10500];
+vector<int> tree,Maxtree;
+
+void Init(int cur,int start, int end) {
+   if (start == end) { tree[cur] = Maxtree[cur] = v[start]; return; }
+   int mid = (start + end) / 2;
+   Init(cur * 2, start, mid);
+   Init(cur * 2 + 1, mid + 1, end);
+   tree[cur] = min(tree[cur * 2], tree[cur * 2 + 1]);
+   Maxtree[cur] = max(Maxtree[cur * 2], Maxtree[cur * 2 + 1]);
+}
+int Minout(int cur, int start, int end, int left, int right) {
+   if (start>right||end<left)return 1000000001;
+   if (left <= start && end <= right)return tree[cur];
+   int mid = (start + end) / 2;
+   return min(Minout(cur * 2, start, mid, left, right), Minout(cur * 2 + 1, mid + 1, end, left, right));
+}
+int Maxout(int cur, int start, int end, int left, int right) {
+   if (start > right || end < left)return 0;
+   if (left <= start && end <= right)return Maxtree[cur];
+   int mid = (start + end) / 2;
+   return max(Maxout(cur * 2, start, mid, left, right), Maxout(cur * 2 + 1, mid + 1, end, left, right));
+}
+int main(void) {
+   ios::sync_with_stdio(false);   cin.tie(NULL);   cout.tie(NULL);
+   cin >> n >> m;
+   int height = (int)ceil(log2(n));
+   Size = 1 << (height + 1);
+   tree.resize(Size);
+   Maxtree.resize(Size);
+   for (int i = 0; i < n; i++) {
+      int a;
+      cin >> a;
+      v.push_back(a);
+   }
+   Init(1, 0, n - 1);
+   for (int i = 0; i < m; i++) {
+      int a, b;
+      cin >> a >> b;
+      cout << Minout(1, 0,n-1, a-1, b - 1) << " " << Maxout(1, 0,n-1,a - 1, b - 1) << "\n";
+   }
+   return 0;
+}

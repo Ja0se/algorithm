@@ -1,0 +1,61 @@
+#pragma warning(disable:4996)
+#include<iostream>
+#include<vector>
+#include<stack>
+#include<algorithm>
+using namespace std;
+struct pa {
+	int x1, y1, x2, y2, x3, y3;
+};
+int gcd(int a, int b) {
+	if (a < 0)a *= -1;
+	if (b < 0)b *= -1;
+	if (b == 0)return a;
+	gcd(b, a % b);
+}
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	freopen("1.inp", "r", stdin);	freopen("1.out", "w", stdout);
+	int T;
+	cin >> T;
+	while (T--) {
+		struct pa point;
+		int cnt = 0;
+		cin >> point.x1 >> point.y1 >> point.x2 >> point.y2 >> point.x3 >> point.y3;
+		int m1 = point.x2 - point.x1, m2 = point.y2 - point.y1;
+		int GCD = gcd(m1, m2);
+		m1 /= GCD;
+		m2 /= GCD;
+		int x = point.x1 + m1;
+		int y = point.y1 + m2;
+		while (x != point.x2) {
+			x += m1;
+			y += m2;
+			cnt++;
+		}
+		m1 = point.x3 - point.x2, m2 = point.y3 - point.y2;
+		GCD = gcd(m1, m2);
+		m1 /= GCD;
+		m2 /= GCD;
+		x = point.x2 + m1;
+		y = point.y2 + m2;
+		while (x != point.x3) {
+			x += m1;
+			y += m2;
+			cnt++;
+		}
+		m1 = point.x3 - point.x1, m2 = point.y3 - point.y1;
+		GCD = gcd(m1, m2);
+		m1 /= GCD;
+		m2 /= GCD;
+		x = point.x1 + m1;
+		y = point.y1 + m2;
+		while (x != point.x3) {
+			x += m1;
+			y += m2;
+			cnt++;
+		}
+		cout << cnt + 3 << "\n";
+	}
+	return 0;
+}

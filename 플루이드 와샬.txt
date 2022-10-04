@@ -1,0 +1,43 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<queue>
+#define ll long long
+#define INF 10000100
+using namespace std;
+struct pa {
+	int x, cost;
+};
+int n, m;
+vector<struct pa> v[501];
+int arr[101][101];
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	cin >> n >> m;
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			if (i == j)continue;
+			arr[i][j] = INF;
+		}
+	}
+	for (int i = 0; i < m; i++) {
+		int a, b, c;
+		cin >> a >> b >> c;
+		arr[a][b] = min(arr[a][b],c);
+	}
+	
+	for (int k = 1; k <= n; k++) {
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= n; j++) {
+				arr[i][j] = min(arr[i][k] + arr[k][j], arr[i][j]);
+			}
+		}
+	}
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			arr[i][j] != INF ? cout << arr[i][j] << " " : cout << "0 ";
+		}
+		cout << "\n";
+	}
+	return 0;
+}

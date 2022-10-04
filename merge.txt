@@ -1,0 +1,59 @@
+#pragma warning(disable:4996)
+#include<iostream>
+#include<vector>
+using namespace std;
+vector<int> v;
+void merge2(int lo, int mid, int high) {
+	vector<int> key;
+	int i = lo, j = mid + 1, k = lo;
+	while (i <= mid && j <= high) {
+		if (v[i] < v[j]) {
+			key.push_back(v[i]);
+			i++;
+		}
+		else {
+			key.push_back(v[j]);
+			j++;
+		}
+		k++;
+	}
+	if (i > mid) {
+		while (j <= high) {
+			key.push_back(v[j]);
+			j++;
+		}
+	}
+	else {
+		while (i <= mid) {
+			key.push_back(v[i]);
+			i++;
+		}
+	}
+	for (int q = lo; q <= high; q++) {
+		v[q] = key[q - lo];
+	}
+
+}
+void merge(int lo, int high) {
+	int mid = (lo + high) / 2;
+	if (lo < high) {
+		merge(lo, mid);
+		merge(mid+1, high);
+		merge2(lo, mid, high);
+	}
+}
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	freopen("1.inp", "r", stdin);
+	freopen("1.out", "w", stdout);
+	while(!cin.eof()) {
+		int a;
+		cin >> a;
+		v.push_back(a);
+	}
+	merge(0,v.size()-1);
+	for (int i = 0; i < v.size(); i++) {
+		cout << v[i] << " ";
+	}
+	return 0;
+}

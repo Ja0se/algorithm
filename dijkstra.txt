@@ -1,0 +1,43 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+#include<queue>
+#define INF 1234567890
+using namespace std;
+
+struct pa {
+	int x, dist;
+	bool operator<(const struct pa b)const {
+		return dist > b.dist;
+	}
+};
+int n, m;
+int dist[20001];
+vector<struct pa> adj[20001];
+priority_queue<struct pa> q;
+int main(void) {
+	ios::sync_with_stdio(false);	cin.tie(NULL);	cout.tie(NULL);
+	cin >> n >> m;
+	int k;
+	cin >> k;
+	for (int i = 0; i < m; i++) {
+		int u, v, w;
+		cin >> u >> v >> w;
+		adj[u].push_back({ v,w });
+	}
+	for (int i = 1; i <= n; i++)dist[i] = INF;
+	q.push({ k,0 });
+	while (!q.empty()) {
+		struct pa top = q.top();
+		q.pop();
+		if (dist[top.x]!=INF)continue;
+		dist[top.x] = top.dist;
+		for (auto& next : adj[top.x]) {
+			q.push({ next.x,top.dist + next.dist });
+		}
+	}
+	for (int i = 0; i < n; i++) {
+		dist[i+1] == INF ? cout << "INF\n" : cout << dist[i + 1] << "\n";
+	}
+	return 0;
+}
